@@ -1,0 +1,264 @@
+version: '3.8'
+
+services:
+  # JERICHO Frontend Application
+  jericho-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+    container_name: jericho-frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001/api
+      - VITE_WS_URL=ws://localhost:3001
+      - VITE_HIKVISION_API_URL=${VITE_HIKVISION_API_URL}
+      - VITE_HIKVISION_ACCESS_KEY=${VITE_HIKVISION_ACCESS_KEY}
+      - VITE_HIKVISION_SECRET_KEY=${VITE_HIKVISION_SECRET_KEY}
+    depends_on:
+      - jericho-backend
+      - postgres
+      - redis
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # JERICHO Backend API
+  jericho-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: jericho-backend-dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - jericho-uploads:/app/uploads
+      - jericho-logs:/app/logs
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=jericho_db
+      - DB_USER=jericho
+      - DB_PASSWORD=${DB_PASSWORD:-jericho_secure_password}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_secure_password}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key_change_in_production}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your_refresh_secret_key_change_in_production}
+      - HIKVISION_ACCESS_KEY=${HIKVISION_ACCESS_KEY}
+      - HIKVISION_SECRET_KEY=${HIKVISION_SECRET_KEY}
+      # Inter-VM communication (for ESXi deployment)
+      - ASTERISK_VM_URL=${ASTERISK_VM_URL:-http://asterisk-vm:8443}
+      - AI_VM_URL=${AI_VM_URL:-http://ai-vm:8444}
+      - INTER_VM_TOKEN=${INTER_VM_TOKEN:-secure_inter_vm_token}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: jericho-postgres-dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - jericho-postgres-data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_DB=jericho_db
+      - POSTGRES_USER=jericho
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-jericho_secure_password}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jericho -d jericho_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+
+  # Redis Cache & Session Store
+  redis:
+    image: redis:7-alpine
+    container_name: jericho-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - jericho-redis-data:/data
+      - ./infrastructure/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_secure_password}
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: jericho-nginx-dev
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl
+      - jericho-logs:/var/log/nginx
+    depends_on:
+      - jericho-frontend
+      - jericho-backend
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development Tools (Optional)
+  adminer:
+    image: adminer:latest
+    container_name: jericho-adminer-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+    depends_on:
+      - postgres
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    profiles:
+      - tools
+
+  # Redis Commander (Optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: jericho-redis-commander-dev
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD:-redis_secure_password}
+    depends_on:
+      - redis
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    profiles:
+      - tools
+
+# Docker Networks
+networks:
+  jericho-network:
+    driver: bridge
+    name: jericho-security-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Persistent Volumes
+volumes:
+  jericho-postgres-data:
+    driver: local
+    name: jericho-postgres-data
+  
+  jericho-redis-data:
+    driver: local
+    name: jericho-redis-data
+  
+  jericho-uploads:
+    driver: local
+    name: jericho-uploads
+  
+  jericho-logs:
+    driver: local
+    name: jericho-logs
+
+# ESXi VM Simulation (for testing)
+# Uncomment these services to simulate the multi-VM architecture
+x-esxi-simulation:
+  # Asterisk PBX Simulation
+  asterisk-sim:
+    image: andrius/asterisk:latest
+    container_name: jericho-asterisk-sim
+    ports:
+      - "8443:8080"  # HTTP API
+      - "5060:5060"  # SIP
+    volumes:
+      - ./infrastructure/asterisk:/etc/asterisk
+    environment:
+      - ASTERISK_UID=1000
+      - ASTERISK_GID=1000
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    profiles:
+      - esxi-sim
+
+  # AI Processing Simulation
+  ai-processor-sim:
+    build:
+      context: ./infrastructure/ai-processor
+      dockerfile: Dockerfile
+    container_name: jericho-ai-sim
+    ports:
+      - "8444:8444"
+    volumes:
+      - ./ai-models:/app/models
+    environment:
+      - FLASK_ENV=development
+      - MODEL_PATH=/app/models
+    networks:
+      - jericho-network
+    restart: unless-stopped
+    profiles:
+      - esxi-sim
+    # Uncomment if you have GPU support
+    # runtime: nvidia
+    # environment:
+    #   - NVIDIA_VISIBLE_DEVICES=all
