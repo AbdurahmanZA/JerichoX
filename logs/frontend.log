@@ -1,0 +1,5 @@
+[HPM] Proxy created: /  -> http://localhost:3001
+[HPM] Proxy rewrite rule created: "^/api" ~> "/"
+[HPM] Proxy created: /  -> http://localhost:3001
+JERICHO Frontend Server running on port 3000
+Environment: development
