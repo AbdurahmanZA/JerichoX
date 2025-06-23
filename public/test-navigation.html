@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Navigation Test</title>
+    <style>
+        body { background: #1a1a1a; color: white; font-family: Arial, sans-serif; padding: 20px; }
+        .test-link { color: #D18B47; text-decoration: underline; margin: 10px; display: block; }
+    </style>
+</head>
+<body>
+    <h1>🛡️ JERICHO Navigation Test</h1>
+    <p>Test these links to verify routing:</p>
+    
+    <a href="/" class="test-link">Home Page</a>
+    <a href="/settings" class="test-link">Settings Page</a>
+    <a href="/#/" class="test-link">Home with Hash</a>
+    <a href="/#/settings" class="test-link">Settings with Hash</a>
+    
+    <div style="margin-top: 20px; padding: 15px; background: #2D5A5C; border-radius: 5px;">
+        <h3>Current URL Info:</h3>
+        <p>Location: <span id="location"></span></p>
+        <p>Pathname: <span id="pathname"></span></p>
+        <p>Hash: <span id="hash"></span></p>
+    </div>
+    
+    <script>
+        document.getElementById('location').textContent = window.location.href;
+        document.getElementById('pathname').textContent = window.location.pathname;
+        document.getElementById('hash').textContent = window.location.hash || 'none';
+        
+        console.log('Navigation test page loaded');
+        console.log('Current location:', window.location);
+    </script>
+</body>
+</html>

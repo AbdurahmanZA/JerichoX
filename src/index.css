@@ -128,3 +128,76 @@
     left: 100%;
   }
 }
+
+/* JERICHO Security Corporate Brand Colors */
+:root {
+  --jericho-primary: #2D5A5C;        /* Dark teal/blue-green */
+  --jericho-accent: #D18B47;         /* Warm orange/gold */
+  --jericho-secondary: #4A6B75;      /* Medium blue-gray */
+  --jericho-light: #6B8A95;          /* Light blue-gray */
+  --jericho-very-light: #F0F0F0;     /* Very light gray */
+  --jericho-dark-teal: #335A63;      /* Dark teal variation */
+}
+
+/* JERICHO Brand Typography */
+.jericho-brand {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--jericho-accent);
+}
+
+/* JERICHO Professional Button Styles */
+.jericho-btn-primary {
+  background: linear-gradient(135deg, var(--jericho-primary) 0%, var(--jericho-dark-teal) 100%);
+  border: 1px solid var(--jericho-primary);
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.jericho-btn-primary:hover {
+  background: linear-gradient(135deg, var(--jericho-dark-teal) 0%, var(--jericho-primary) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(45, 90, 92, 0.3);
+}
+
+.jericho-btn-accent {
+  background: linear-gradient(135deg, var(--jericho-accent) 0%, #C17A3A 100%);
+  border: 1px solid var(--jericho-accent);
+  color: var(--jericho-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.jericho-btn-accent:hover {
+  background: linear-gradient(135deg, #C17A3A 0%, var(--jericho-accent) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(209, 139, 71, 0.3);
+}
+
+/* JERICHO Security Gradient */
+.jericho-gradient {
+  background: linear-gradient(135deg, var(--jericho-primary) 0%, var(--jericho-secondary) 100%);
+}
+
+/* Security-focused animations */
+@keyframes pulse-secure {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.security-pulse {
+  animation: pulse-secure 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -1,0 +1,78 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { Settings as SettingsIcon, Home } from 'lucide-react';
+import Settings from './components/Settings';
+
+// Simple Navigation for testing
+const SimpleNav = () => {
+  const location = useLocation();
+  
+  return (
+    <div style={{ padding: '20px', backgroundColor: '#2D5A5C', color: 'white' }}>
+      <h1>🛡️ JERICHO SECURITY - Navigation Test</h1>
+      <div style={{ marginTop: '10px' }}>
+        <Link to="/" style={{ 
+          margin: '10px', 
+          padding: '10px 20px', 
+          backgroundColor: location.pathname === '/' ? '#D18B47' : 'transparent',
+          border: '2px solid #D18B47',
+          color: location.pathname === '/' ? '#2D5A5C' : '#D18B47',
+          textDecoration: 'none',
+          borderRadius: '5px',
+          fontWeight: 'bold'
+        }}>
+          🏠 HOME
+        </Link>
+        
+        <Link to="/settings" style={{ 
+          margin: '10px', 
+          padding: '10px 20px', 
+          backgroundColor: location.pathname === '/settings' ? '#D18B47' : 'transparent',
+          border: '2px solid #D18B47',
+          color: location.pathname === '/settings' ? '#2D5A5C' : '#D18B47',
+          textDecoration: 'none',
+          borderRadius: '5px',
+          fontWeight: 'bold'
+        }}>
+          ⚙️ SETTINGS
+        </Link>
+        
+        <div style={{ marginTop: '10px', fontSize: '14px', opacity: '0.8' }}>
+          Current path: {location.pathname}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Simple Home Page
+const HomePage = () => (
+  <div style={{ padding: '20px', backgroundColor: '#1a1a1a', color: 'white', minHeight: '100vh' }}>
+    <SimpleNav />
+    <div style={{ padding: '20px' }}>
+      <h2>🎥 Camera Grid</h2>
+      <p>This is the home page. Click Settings to test navigation.</p>
+      <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#4A6B75', borderRadius: '8px' }}>
+        <p>✅ Home page loaded successfully</p>
+        <p>✅ Navigation component working</p>
+        <p>✅ React Router active</p>
+      </div>
+    </div>
+  </div>
+);
+
+function App() {
+  return (
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;

@@ -1,0 +1,649 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { 
+  Plus, 
+  Trash2, 
+  RefreshCw, 
+  Shield, 
+  Wifi, 
+  WifiOff,
+  Eye,
+  EyeOff,
+  AlertTriangle,
+  Camera,
+  Monitor
+} from 'lucide-react';
+
+interface HikConnectAccount {
+  id: string;
+  account_name: string;
+  access_key: string;
+  secret_key?: string;
+  region: 'global' | 'eu' | 'asia' | 'us';
+  api_url: string;
+  auth_type: 'ak_sk' | 'oauth';
+  is_active: boolean;
+  last_sync: string;
+  created_at: string;
+  device_count?: number;
+}
+
+interface HikConnectDevice {
+  device_serial: string;
+  device_name: string;
+  device_type: string;
+  device_model: string;
+  status: number;
+  channel_number: number;
+  manufacturer: string;
+  account_id: string;
+  camera_count?: number;
+}
+
+export const HikConnectSettings: React.FC = () => {
+  const [accounts, setAccounts] = useState<HikConnectAccount[]>([]);
+  const [devices, setDevices] = useState<HikConnectDevice[]>([]);
+  const [selectedAccount, setSelectedAccount] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<Record<string, boolean>>({});
+
+  // Form state for adding new account
+  const [newAccount, setNewAccount] = useState({
+    accountName: '',
+    accessKey: '',
+    secretKey: '',
+    region: 'global' as const,
+    apiUrl: ''
+  });
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  useEffect(() => {
+    if (selectedAccount) {
+      loadAccountDevices(selectedAccount);
+    }
+  }, [selectedAccount]);
+
+  const loadAccounts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/hikconnect/accounts', {
+        headers: {
+          'Authorization': 'Bearer test-token'
+        }
+      });
+      
+      if (response.ok) {
+        const accountList = await response.json();
+        setAccounts(accountList);
+        
+        if (accountList.length > 0 && !selectedAccount) {
+          setSelectedAccount(accountList[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load accounts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAccountDevices = async (accountId: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/hikconnect/devices/account/${accountId}`, {
+        headers: {
+          'Authorization': 'Bearer test-token'
+        }
+      });
+      
+      if (response.ok) {
+        const accountDevices = await response.json();
+        setDevices(accountDevices);
+      }
+    } catch (error) {
+      console.error('Failed to load devices:', error);
+      setDevices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddAccount = async () => {
+    if (!newAccount.accountName || !newAccount.accessKey || !newAccount.secretKey) {
+      alert('Account name, access key, and secret key are required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch('/api/hikconnect/accounts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-token'
+        },
+        body: JSON.stringify(newAccount)
+      });
+
+      if (response.ok) {
+        const account = await response.json();
+        alert(`HikConnect account "${account.account_name}" added successfully`);
+        
+        // Reset form and close dialog
+        setNewAccount({
+          accountName: '',
+          accessKey: '',
+          secretKey: '',
+          region: 'global',
+          apiUrl: ''
+        });
+        setShowAddDialog(false);
+        
+        // Reload accounts
+        await loadAccounts();
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveAccount = async (accountId: string) => {
+    if (!confirm('Are you sure you want to remove this HikConnect account? All associated devices will be removed.')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/hikconnect/accounts/${accountId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer test-token'
+        }
+      });
+
+      if (response.ok) {
+        alert('HikConnect account removed successfully');
+        
+        // If removed account was selected, clear selection
+        if (selectedAccount === accountId) {
+          setSelectedAccount('');
+          setDevices([]);
+        }
+
+        await loadAccounts();
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSyncDevices = async (accountId: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/hikconnect/devices/sync/${accountId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer test-token'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Synced ${result.devices.length} devices from HikConnect`);
+        
+        if (selectedAccount === accountId) {
+          await loadAccountDevices(accountId);
+        }
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddCameraFromDevice = async (device: HikConnectDevice) => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/hikconnect/cameras/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-token'
+        },
+        body: JSON.stringify({
+          deviceSerial: device.device_serial,
+          accountId: device.account_id,
+          channelNo: 1,
+          name: device.device_name,
+          location: 'HikConnect Device',
+          isSelected: true
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Camera "${device.device_name}" added successfully`);
+        await loadAccountDevices(selectedAccount);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getDeviceStatusBadge = (status: number) => {
+    return status === 1 ? (
+      <Badge className="bg-green-500 text-white">Online</Badge>
+    ) : (
+      <Badge className="bg-red-500 text-white">Offline</Badge>
+    );
+  };
+
+  const getRegionDisplayName = (region: string) => {
+    const regionNames = {
+      global: 'Global',
+      eu: 'Europe',
+      us: 'United States',
+      asia: 'Asia Pacific',
+    };
+    return regionNames[region as keyof typeof regionNames] || region;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-bold uppercase tracking-wide text-white">
+            HIK-CONNECT INTEGRATION
+          </h3>
+          <p className="text-sm text-gray-400 mt-1">
+            Manage HikConnect accounts and sync devices for unified camera management
+          </p>
+        </div>
+        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <DialogTrigger asChild>
+            <Button className="bg-[#D18B47] hover:bg-[#C17A3A] text-[#2D5A5C] font-semibold">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Account
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md bg-gray-900 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-white font-bold uppercase">Add HikConnect Account</DialogTitle>
+              <DialogDescription className="text-gray-400">
+                Connect your HikConnect account using Access Key (AK) and Secret Key (SK)
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="accountName" className="text-white">Account Name</Label>
+                <Input
+                  id="accountName"
+                  placeholder="My Office Cameras"
+                  value={newAccount.accountName}
+                  onChange={(e) => setNewAccount(prev => ({ ...prev, accountName: e.target.value }))}
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="accessKey" className="text-white">Access Key (AK)</Label>
+                <Input
+                  id="accessKey"
+                  placeholder="Your access key from HikConnect"
+                  value={newAccount.accessKey}
+                  onChange={(e) => setNewAccount(prev => ({ ...prev, accessKey: e.target.value }))}
+                  className="bg-gray-800 border-gray-700 text-white"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="secretKey" className="text-white">Secret Key (SK)</Label>
+                <div className="relative">
+                  <Input
+                    id="secretKey"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Your secret key from HikConnect"
+                    value={newAccount.secretKey}
+                    onChange={(e) => setNewAccount(prev => ({ ...prev, secretKey: e.target.value }))}
+                    className="bg-gray-800 border-gray-700 text-white pr-10"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="region" className="text-white">Region</Label>
+                <select
+                  value={newAccount.region}
+                  onChange={(e) => setNewAccount(prev => ({ ...prev, region: e.target.value as any }))}
+                  className="w-full rounded-md border border-gray-700 bg-gray-800 text-white px-3 py-2 text-sm"
+                >
+                  <option value="global">Global</option>
+                  <option value="eu">Europe</option>
+                  <option value="us">United States</option>
+                  <option value="asia">Asia Pacific</option>
+                </select>
+              </div>
+              
+              <div>
+                <Label htmlFor="apiUrl" className="text-white">API URL (Optional)</Label>
+                <Input
+                  id="apiUrl"
+                  placeholder="Custom API URL (leave blank for default)"
+                  value={newAccount.apiUrl}
+                  onChange={(e) => setNewAccount(prev => ({ ...prev, apiUrl: e.target.value }))}
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowAddDialog(false)}
+                disabled={loading}
+                className="border-gray-700 text-gray-300 hover:bg-gray-800"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAddAccount}
+                disabled={loading}
+                className="bg-[#D18B47] hover:bg-[#C17A3A] text-[#2D5A5C] font-semibold"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  'Add Account'
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* No accounts state */}
+      {accounts.length === 0 && (
+        <Card className="bg-gradient-to-r from-[#2D5A5C] to-[#4A6B75] border-gray-700">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <Camera className="h-16 w-16 text-[#D18B47] mb-4" />
+            <h3 className="text-lg font-semibold mb-2 text-white">No HikConnect Accounts</h3>
+            <p className="text-gray-300 mb-4">
+              Add your HikConnect account with AK/SK to start managing your cameras
+            </p>
+            <Button 
+              onClick={() => setShowAddDialog(true)}
+              className="bg-[#D18B47] hover:bg-[#C17A3A] text-[#2D5A5C] font-semibold"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Your First Account
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Accounts management */}
+      {accounts.length > 0 && (
+        <Tabs defaultValue="accounts" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+            <TabsTrigger value="accounts" className="text-white data-[state=active]:bg-[#2D5A5C]">
+              Accounts ({accounts.length})
+            </TabsTrigger>
+            <TabsTrigger value="devices" className="text-white data-[state=active]:bg-[#2D5A5C]">
+              Devices ({devices.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="accounts" className="space-y-4">
+            <div className="grid gap-4">
+              {accounts.map((account) => (
+                <Card key={account.id} className="bg-gradient-to-r from-[#2D5A5C] to-[#4A6B75] border-gray-700">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Wifi className="h-4 w-4 text-green-500" />
+                        <div>
+                          <CardTitle className="text-sm text-white font-bold uppercase">
+                            {account.account_name}
+                          </CardTitle>
+                          <CardDescription className="text-xs text-gray-300">
+                            {account.access_key} • {getRegionDisplayName(account.region)} • 
+                            Last sync: {new Date(account.last_sync).toLocaleString()}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={account.is_active ? "default" : "destructive"} className="bg-green-600">
+                          {account.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSyncDevices(account.id)}
+                          disabled={loading}
+                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleRemoveAccount(account.id)}
+                          disabled={loading}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="devices" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="account-select" className="text-white">Select Account</Label>
+                <select
+                  value={selectedAccount}
+                  onChange={(e) => setSelectedAccount(e.target.value)}
+                  className="w-64 rounded-md border border-gray-700 bg-gray-800 text-white px-3 py-2 text-sm mt-1"
+                >
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.account_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {selectedAccount && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleSyncDevices(selectedAccount)}
+                  disabled={loading}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  Sync Devices
+                </Button>
+              )}
+            </div>
+
+            {selectedAccount && devices.length > 0 && (
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white font-bold uppercase">
+                    Available Devices ({devices.length})
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Devices from your HikConnect account ready to be added as cameras
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-gray-700">
+                        <TableHead className="text-gray-300">Device Name</TableHead>
+                        <TableHead className="text-gray-300">Model</TableHead>
+                        <TableHead className="text-gray-300">Status</TableHead>
+                        <TableHead className="text-gray-300">Channels</TableHead>
+                        <TableHead className="text-gray-300">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {devices.map((device) => (
+                        <TableRow key={device.device_serial} className="border-gray-700">
+                          <TableCell className="font-medium text-white">
+                            {device.device_name}
+                          </TableCell>
+                          <TableCell className="text-gray-300">{device.device_model}</TableCell>
+                          <TableCell>
+                            {getDeviceStatusBadge(device.status)}
+                          </TableCell>
+                          <TableCell className="text-gray-300">{device.channel_number}</TableCell>
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-[#D18B47] hover:bg-[#C17A3A] text-[#2D5A5C] border-[#D18B47] font-semibold"
+                              onClick={() => handleAddCameraFromDevice(device)}
+                              disabled={device.camera_count && device.camera_count > 0}
+                            >
+                              <Plus className="w-4 h-4 mr-1" />
+                              {device.camera_count && device.camera_count > 0 ? 'Added' : 'Add Camera'}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
+
+            {selectedAccount && devices.length === 0 && !loading && (
+              <Card className="bg-gradient-to-r from-[#2D5A5C] to-[#4A6B75] border-gray-700">
+                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                  <Monitor className="h-16 w-16 text-[#D18B47] mb-4" />
+                  <h3 className="text-lg font-semibold mb-2 text-white">No Devices Found</h3>
+                  <p className="text-gray-300 mb-4">
+                    No devices found for this account. Try syncing or check your HikConnect app.
+                  </p>
+                  <Button 
+                    onClick={() => handleSyncDevices(selectedAccount)}
+                    className="bg-[#D18B47] hover:bg-[#C17A3A] text-[#2D5A5C] font-semibold"
+                    disabled={loading}
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Sync Devices
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
+    </div>
+  );
+};
+
+export default HikConnectSettings;
+
+// Enhanced test credentials function
+const testCredentials = async (accessKey: string, secretKey: string, region: string) => {
+  try {
+    setTesting(true);
+    const response = await fetch('/api/hikconnect/test-credentials', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('jericho_token') || 'test_token'}`
+      },
+      body: JSON.stringify({
+        accessKey,
+        secretKey,
+        region
+      })
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      setTestResult({
+        success: true,
+        message: `✅ Credentials valid! Found ${result.deviceCount} devices.`,
+        deviceCount: result.deviceCount
+      });
+    } else {
+      setTestResult({
+        success: false,
+        message: `❌ ${result.error}`,
+        deviceCount: 0
+      });
+    }
+  } catch (error) {
+    setTestResult({
+      success: false,
+      message: '❌ Network error during credential test',
+      deviceCount: 0
+    });
+  } finally {
+    setTesting(false);
+  }
+};
+
+// Add states for testing
+const [testing, setTesting] = useState(false);
+const [testResult, setTestResult] = useState<{
+  success: boolean;
+  message: string;
+  deviceCount: number;
+} | null>(null);

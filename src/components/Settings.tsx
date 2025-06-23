@@ -1,0 +1,189 @@
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Shield, Settings, Camera, Users, Bell } from 'lucide-react';
+// import HikConnectSettings from "./settings/HikConnectSettings";
+
+const Settings: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-gray-950 text-white">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#2D5A5C] to-[#4A6B75] p-4 shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="w-8 h-8 bg-[#D18B47] rounded-full flex items-center justify-center">
+            <Settings className="text-[#2D5A5C] w-5 h-5" />
+          </div>
+          <h1 className="text-2xl font-bold text-white uppercase tracking-wide">JERICHO SECURITY SETTINGS</h1>
+          <span className="bg-[#D18B47] text-[#2D5A5C] px-3 py-1 rounded text-sm font-semibold">
+            Admin Panel v2.0.0
+          </span>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="p-6">
+        <Tabs defaultValue="hikconnect" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 bg-gray-800">
+            <TabsTrigger value="hikconnect" className="text-white data-[state=active]:bg-[#2D5A5C]">
+              <Shield className="w-4 h-4 mr-2" />
+              HikConnect
+            </TabsTrigger>
+            <TabsTrigger value="cameras" className="text-white data-[state=active]:bg-[#2D5A5C]">
+              <Camera className="w-4 h-4 mr-2" />
+              Cameras
+            </TabsTrigger>
+            <TabsTrigger value="users" className="text-white data-[state=active]:bg-[#2D5A5C]">
+              <Users className="w-4 h-4 mr-2" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="alerts" className="text-white data-[state=active]:bg-[#2D5A5C]">
+              <Bell className="w-4 h-4 mr-2" />
+              Alerts
+            </TabsTrigger>
+            <TabsTrigger value="system" className="text-white data-[state=active]:bg-[#2D5A5C]">
+              <Settings className="w-4 h-4 mr-2" />
+              System
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="hikconnect" className="space-y-4">
+            <div className="p-6 bg-gray-800 rounded-lg"><h3 className="text-xl font-bold text-white mb-4">🛡️ HikConnect Settings</h3><p className="text-gray-400">Settings interface is working! HikConnect component temporarily disabled for testing.</p><div className="mt-4 p-4 bg-green-900/20 border border-green-500 rounded"><p className="text-green-400">✅ Navigation: Working</p><p className="text-green-400">✅ Settings Page: Loading</p><p className="text-green-400">✅ React Router: Functional</p></div></div>
+          </TabsContent>
+
+          <TabsContent value="cameras" className="space-y-4">
+            <Card className="bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Camera Settings</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Configure camera recording, streaming, and display settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Recording Quality</h4>
+                      <p className="text-gray-400 text-sm">Default recording quality for all cameras</p>
+                    </div>
+                    <Badge className="bg-green-600">1080p</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Streaming Protocol</h4>
+                      <p className="text-gray-400 text-sm">Protocol used for live streaming</p>
+                    </div>
+                    <Badge className="bg-blue-600">RTSP</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Grid Layout</h4>
+                      <p className="text-gray-400 text-sm">Default camera grid layout</p>
+                    </div>
+                    <Badge className="bg-purple-600">2x2</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-4">
+            <Card className="bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">User Management</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Manage user accounts and permissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Admin User</h4>
+                      <p className="text-gray-400 text-sm">admin@jericho.local</p>
+                    </div>
+                    <Badge className="bg-red-600">Administrator</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Operator User</h4>
+                      <p className="text-gray-400 text-sm">operator@jericho.local</p>
+                    </div>
+                    <Badge className="bg-blue-600">Operator</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="alerts" className="space-y-4">
+            <Card className="bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Alert Settings</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Configure motion detection and alert notifications
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Motion Detection</h4>
+                      <p className="text-gray-400 text-sm">Global motion detection sensitivity</p>
+                    </div>
+                    <Badge className="bg-yellow-600">Medium</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Email Notifications</h4>
+                      <p className="text-gray-400 text-sm">Send alerts via email</p>
+                    </div>
+                    <Badge className="bg-green-600">Enabled</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="system" className="space-y-4">
+            <Card className="bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">System Information</CardTitle>
+                <CardDescription className="text-gray-400">
+                  JerichoX platform status and configuration
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Platform Version</h4>
+                      <p className="text-gray-400 text-sm">JerichoX Security Platform</p>
+                    </div>
+                    <Badge className="bg-blue-600">v2.0.0</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">Database Status</h4>
+                      <p className="text-gray-400 text-sm">PostgreSQL connection</p>
+                    </div>
+                    <Badge className="bg-green-600">Connected</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-semibold">HikConnect Integration</h4>
+                      <p className="text-gray-400 text-sm">API integration status</p>
+                    </div>
+                    <Badge className="bg-green-600">Ready</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JERICHO Debug</title>
+    <style>
+        body { background: #1a1a1a; color: white; font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #1f4e3d; border-left: 4px solid #10b981; }
+        .info { background: #1e3a8a; border-left: 4px solid #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1>🛡️ JERICHO Security Platform - Debug Page</h1>
+    
+    <div class="status success">
+        <h3>✅ Web Server Status</h3>
+        <p>If you can see this page, the web server is working correctly.</p>
+    </div>
+    
+    <div class="status info">
+        <h3>🔧 Troubleshooting Links</h3>
+        <ul>
+            <li><a href="/" style="color: #60a5fa;">Main App (React)</a></li>
+            <li><a href="/settings" style="color: #60a5fa;">Settings Page</a></li>
+            <li><a href="/test-simple.html" style="color: #60a5fa;">Simple Test Page</a></li>
+        </ul>
+    </div>
+    
+    <div class="status info">
+        <h3>📊 System Information</h3>
+        <p><strong>Frontend URL:</strong> http://192.168.0.142:3000</p>
+        <p><strong>API URL:</strong> http://192.168.0.142:3001</p>
+        <p><strong>Last Updated:</strong> <span id="timestamp"></span></p>
+    </div>
+    
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        console.log('JERICHO Debug: JavaScript is working');
+        
+        // Test API connectivity
+        fetch('/api/cameras')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API Test:', data);
+                document.body.innerHTML += '<div class="status success"><h3>✅ API Connection</h3><p>API is responding correctly</p></div>';
+            })
+            .catch(error => {
+                console.error('API Test Failed:', error);
+                document.body.innerHTML += '<div class="status" style="background: #7f1d1d; border-left: 4px solid #ef4444;"><h3>❌ API Connection</h3><p>API connection failed</p></div>';
+            });
+    </script>
+</body>
+</html>

@@ -1,35 +1,23 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import react from '@vitejs/plugin-react-swc'
+import path from "path"
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   server: {
+    host: '0.0.0.0', // Listen on all interfaces
     port: 3000,
-    host: true,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
-      },
-      '/socket.io': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        ws: true,
-      },
-    },
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-  },
-  css: {
-    postcss: './postcss.config.js',
-  },
+      }
+    }
+  }
 })

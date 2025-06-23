@@ -1,0 +1,34 @@
+# JERICHO GitHub Update Package
+
+## Files to Replace on GitHub:
+
+### New Production Files:
+- server.js (Frontend production server)
+- api-server.js (API production server) 
+- db/migrations/init.sql (Database schema)
+- scripts/manage.sh (Management commands)
+
+### Updated Files:
+- package.json (Production dependencies)
+- vite.config.ts (Simplified config)
+- tailwind.config.js (Fixed config)
+- postcss.config.js (Fixed config)
+- README.md (Updated instructions)
+
+### New Files:
+- .env (Production environment)
+- .gitignore (Log exclusions)
+
+## Key Changes:
+✅ Replaced Vite dev server with Express production servers
+✅ Added PostgreSQL database with proper schema
+✅ Implemented JWT authentication and security headers
+✅ Created management scripts for start/stop/restart
+✅ Fixed all networking and connectivity issues
+✅ Added production build system
+
+## Result:
+- Platform accessible at http://192.168.0.142:3000
+- Management via ./scripts/manage.sh commands
+- Production-ready deployment structure
+

@@ -1,0 +1,240 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { Settings as SettingsIcon, Home, Camera, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Settings from './components/Settings';
+import './index.css';
+
+// Navigation Component
+const Navigation = () => {
+  const location = useLocation();
+  
+  return (
+    <div className="bg-gradient-to-r from-[#2D5A5C] to-[#4A6B75] p-4 shadow-lg">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-8 h-8 bg-[#D18B47] rounded-full flex items-center justify-center">
+            <span className="text-[#2D5A5C] font-bold">🛡️</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white uppercase tracking-wide">JERICHO SECURITY</h1>
+          <span className="bg-[#D18B47] text-[#2D5A5C] px-3 py-1 rounded text-sm font-semibold">
+            Camera Management System v2.0.0
+          </span>
+        </div>
+        
+        {/* Navigation Buttons */}
+        <div className="flex items-center gap-2">
+          <Link to="/">
+            <Button
+              className={location.pathname === '/' 
+                ? 'jericho-btn-accent' 
+                : 'bg-transparent border-2 border-[#D18B47] text-[#D18B47] hover:bg-[#D18B47] hover:text-[#2D5A5C] font-semibold transition-all duration-200'
+              }
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Home
+            </Button>
+          </Link>
+          
+          <Link to="/settings">
+            <Button
+              className={location.pathname === '/settings' 
+                ? 'jericho-btn-accent' 
+                : 'bg-transparent border-2 border-[#D18B47] text-[#D18B47] hover:bg-[#D18B47] hover:text-[#2D5A5C] font-semibold transition-all duration-200'
+              }
+            >
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              Settings
+            </Button>
+          </Link>
+        </div>
+      </div>
+      
+      {/* Status Bar */}
+      <div className="mt-4 flex items-center gap-6 text-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <span>Online: Loading...</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+          <span>Offline: Loading...</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+          <span>Recording: Loading...</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Enhanced Camera Grid Component
+const CameraGrid = () => {
+  const [showAddCamera, setShowAddCamera] = React.useState(false);
+  
+  return (
+    <div className="min-h-screen bg-gray-950 text-white">
+      <Navigation />
+
+      {/* Main Content */}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Camera Management System</h2>
+            <p className="text-gray-400">Monitor your security cameras and manage device connections</p>
+          </div>
+          
+          {/* Add Camera Button */}
+          <Button 
+            onClick={() => setShowAddCamera(true)}
+            className="bg-[#D18B47] hover:bg-[#C17A3A] text-[#2D5A5C] font-semibold"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Camera
+          </Button>
+        </div>
+
+        {/* Camera Grid */}
+        <div className="grid grid-cols-2 gap-4 max-w-4xl mx-auto">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden aspect-video">
+              <div className="w-full h-full flex items-center justify-center relative">
+                {/* Simulated camera feed */}
+                <div className="w-full h-full bg-gradient-to-br from-[#2D5A5C] to-[#4A6B75] flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-[#D18B47] text-2xl font-bold mb-2">Camera {i}</div>
+                    <div className="text-white text-sm">Building A - Zone {i}</div>
+                    <div className="text-gray-300 text-xs mt-2">
+                      Live Feed - {new Date().toLocaleTimeString()}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Status indicator */}
+                <div className="absolute top-2 right-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                
+                {/* Camera info overlay */}
+                <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
+                  <p className="text-white text-xs font-medium">Camera {i}</p>
+                  <p className="text-gray-300 text-xs">Building A</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Add Camera Dialog Placeholder */}
+        {showAddCamera && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-900 p-6 rounded-lg max-w-md w-full mx-4 border border-gray-700">
+              <h3 className="text-lg font-bold text-white mb-4">Add Camera</h3>
+              <p className="text-gray-400 mb-4">
+                To add cameras from your HikConnect account, please configure your credentials in Settings first.
+              </p>
+              <div className="flex gap-2">
+                <Link to="/settings">
+                  <Button className="bg-[#D18B47] hover:bg-[#C17A3A] text-[#2D5A5C] font-semibold">
+                    Go to Settings
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAddCamera(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* API Status */}
+        <div className="mt-8 text-center">
+          <APIStatus />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// API Status Component
+const APIStatus = () => {
+  const [status, setStatus] = React.useState({ loading: true, cameras: 0, healthy: false, hikconnect: false });
+
+  React.useEffect(() => {
+    // Test main API
+    fetch('/api/cameras')
+      .then(response => response.json())
+      .then(data => {
+        setStatus(prev => ({
+          ...prev,
+          loading: false,
+          cameras: data.success ? data.cameras.length : 0,
+          healthy: data.success
+        }));
+      })
+      .catch(() => {
+        setStatus(prev => ({ ...prev, loading: false, cameras: 0, healthy: false }));
+      });
+
+    // Test HikConnect API
+    fetch('/api/hikconnect/health')
+      .then(response => response.ok)
+      .then(hikconnect => {
+        setStatus(prev => ({ ...prev, hikconnect }));
+      })
+      .catch(() => {
+        setStatus(prev => ({ ...prev, hikconnect: false }));
+      });
+  }, []);
+
+  if (status.loading) {
+    return <div className="text-gray-400">Connecting to API...</div>;
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-center gap-4">
+        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${
+          status.healthy ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
+        }`}>
+          <div className={`w-2 h-2 rounded-full ${status.healthy ? 'bg-green-500' : 'bg-red-500'}`}></div>
+          <span>API: {status.healthy ? 'Connected' : 'Disconnected'}</span>
+        </div>
+        
+        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${
+          status.hikconnect ? 'bg-green-900/50 text-green-400' : 'bg-yellow-900/50 text-yellow-400'
+        }`}>
+          <div className={`w-2 h-2 rounded-full ${status.hikconnect ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+          <span>HikConnect: {status.hikconnect ? 'Ready' : 'Configure in Settings'}</span>
+        </div>
+      </div>
+      
+      {status.healthy && (
+        <div className="text-sm text-gray-400">
+          Database: {status.cameras} cameras loaded
+        </div>
+      )}
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<CameraGrid />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
