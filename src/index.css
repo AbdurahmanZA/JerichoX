@@ -2,50 +2,97 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Jericho Security Brand Theme - EXACT REPLICA */
 @layer base {
   :root {
+    /* Jericho Brand Colors - Official Corporate Identity */
+    --jericho-primary: #2D5A5C;        /* Dark teal/blue-green */
+    --jericho-accent: #D18B47;         /* Warm orange/gold */
+    --jericho-secondary: #4A6B75;      /* Medium blue-gray */
+    --jericho-light: #6B8A95;          /* Light blue-gray */
+    --jericho-very-light: #F0F0F0;     /* Very light gray */
+    --jericho-dark-teal: #335A63;      /* Dark teal variation */
+    
+    /* Light Theme Design System Colors */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 177 34% 27%;
+
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 177 34% 27%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 9% 17%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 177 34% 27%;
+
+    --primary: 177 34% 27%;             /* Jericho primary */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 200 25% 36%;           /* Jericho secondary */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 40% 98%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 32 55% 56%;               /* Jericho accent */
+    --accent-foreground: 177 34% 27%;
+
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 177 34% 27%;
+    
+    --sidebar-background: 177 34% 27%;   /* Primary teal for sidebar */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 177 34% 27%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 25% 36%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 200 25% 36%;
+    --sidebar-ring: 177 34% 27%;
+
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    /* Dark Theme Design System Colors - Professional Security Control Room */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 177 34% 27%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 200 25% 36%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 32 55% 56%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 177 34% 22%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 177 34% 27%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 25% 31%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 200 25% 31%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -53,102 +100,73 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-weight: 400;
+    opacity: 0.8; /* Softer appearance for body text - Corporate Standard */
+  }
+  
+  /* Jericho Typography - Corporate Standard */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 1; /* Full opacity for headings */
+  }
+  
+  .jericho-brand {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  
+  .jericho-security-text {
+    color: var(--jericho-accent);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  .jericho-primary-bg {
+    background-color: var(--jericho-primary);
+  }
+  
+  .jericho-accent-bg {
+    background-color: var(--jericho-accent);
+  }
+  
+  .jericho-secondary-bg {
+    background-color: var(--jericho-secondary);
+  }
+  
+  .jericho-gradient {
+    background: linear-gradient(135deg, var(--jericho-primary) 0%, var(--jericho-secondary) 100%);
+  }
+  
+  .jericho-shield {
+    filter: drop-shadow(0 2px 4px rgba(45, 90, 92, 0.3));
   }
 }
 
-/* Custom JERICHO Security Platform styles */
-.jericho-glow {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-}
-
-.security-grid {
-  background-image: 
-    linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-/* Status indicators */
-.status-online {
-  animation: pulse-green 2s infinite;
-}
-
-@keyframes pulse-green {
+/* Security-focused animations */
+@keyframes pulse-secure {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.8;
+    transform: scale(1.05);
   }
 }
 
-/* Emergency button styles */
-.emergency-button {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  transition: all 0.3s ease;
+.security-pulse {
+  animation: pulse-secure 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.emergency-button:hover {
-  background: linear-gradient(135deg, #b91c1c, #991b1b);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.4);
-}
-
-/* Camera feed placeholder styles */
-.camera-feed {
-  background: linear-gradient(45deg, #1f2937, #374151);
-  border: 2px solid #4b5563;
-  position: relative;
-  overflow: hidden;
-}
-
-.camera-feed::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(59, 130, 246, 0.1),
-    transparent
-  );
-  animation: camera-scan 3s infinite;
-}
-
-@keyframes camera-scan {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-/* JERICHO Security Corporate Brand Colors */
-:root {
-  --jericho-primary: #2D5A5C;        /* Dark teal/blue-green */
-  --jericho-accent: #D18B47;         /* Warm orange/gold */
-  --jericho-secondary: #4A6B75;      /* Medium blue-gray */
-  --jericho-light: #6B8A95;          /* Light blue-gray */
-  --jericho-very-light: #F0F0F0;     /* Very light gray */
-  --jericho-dark-teal: #335A63;      /* Dark teal variation */
-}
-
-/* JERICHO Brand Typography */
-.jericho-brand {
-  font-family: 'Inter', sans-serif;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--jericho-accent);
-}
-
-/* JERICHO Professional Button Styles */
+/* Professional button styles - EXACT REPLICA */
 .jericho-btn-primary {
   background: linear-gradient(135deg, var(--jericho-primary) 0%, var(--jericho-dark-teal) 100%);
   border: 1px solid var(--jericho-primary);
@@ -181,23 +199,48 @@
   box-shadow: 0 4px 8px rgba(209, 139, 71, 0.3);
 }
 
-/* JERICHO Security Gradient */
-.jericho-gradient {
-  background: linear-gradient(135deg, var(--jericho-primary) 0%, var(--jericho-secondary) 100%);
+/* Professional Security Control Room Styling */
+.security-control-room {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  min-height: 100vh;
 }
 
-/* Security-focused animations */
-@keyframes pulse-secure {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
+.camera-tile-professional {
+  background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
-.security-pulse {
-  animation: pulse-secure 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.camera-tile-professional:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  border-color: var(--jericho-accent);
+}
+
+.header-professional {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #334155;
+}
+
+.sidebar-professional {
+  background: var(--jericho-primary);
+  color: white;
+}
+
+.status-indicator-online {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.status-indicator-offline {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.status-indicator-connecting {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+  animation: pulse-secure 1.5s infinite;
 }
